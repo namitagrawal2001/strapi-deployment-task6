@@ -2,6 +2,23 @@ provider "aws" {
   region = var.region
 }
 
+# Automatic latest Ubuntu AMI
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"]
+}
+
 resource "aws_security_group" "strapi_sg" {
   name = "strapi-sg"
 
@@ -35,7 +52,7 @@ resource "aws_security_group" "strapi_sg" {
 }
 
 resource "aws_instance" "strapi" {
-  ami           = var.ami
+  ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
   key_name      = var.key_name
   security_groups = [aws_security_group.strapi_sg.name]
@@ -46,7 +63,6 @@ resource "aws_instance" "strapi" {
               apt install docker.io -y
               systemctl start docker
               systemctl enable docker
-              usermod -aG docker ubuntu
 
               docker pull ${var.image}
               docker run -d -p 80:1337 ${var.image}

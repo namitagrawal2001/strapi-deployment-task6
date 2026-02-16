@@ -22,7 +22,6 @@ jobs:
         run: |
           terraform apply -auto-approve \
             -var="region=${{ secrets.AWS_REGION }}" \
-            -var="ami=${{ secrets.AMI_ID }}" \
             -var="key_name=${{ secrets.EC2_KEY_NAME }}" \
             -var="image=${{ secrets.DOCKER_IMAGE }}"
         working-directory: terraform
