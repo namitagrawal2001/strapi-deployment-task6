@@ -1,0 +1,28 @@
+name: Deploy with Terraform
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: terraform
+
+      - name: Terraform Apply
+        run: |
+          terraform apply -auto-approve \
+            -var="region=${{ secrets.AWS_REGION }}" \
+            -var="ami=${{ secrets.AMI_ID }}" \
+            -var="key_name=${{ secrets.EC2_KEY_NAME }}" \
+            -var="image=${{ secrets.DOCKER_IMAGE }}"
+        working-directory: terraform
